@@ -147,8 +147,8 @@ def get_model_summary(model: torch.nn.Module, input_size: Tuple, device: str):
     return summary(model=model, input_size=input_size, device=device)
 
 
-def get_transformation(transform_dict: Box = None) -> Compose:
-    available_transform = {
+def get_transformation(transforms: Dict[str, Dict] = None) -> Compose:
+    available_transforms = {
         # Color
         "ColorJitter": ColorJitter,
         "Grayscale": Grayscale,
@@ -232,47 +232,50 @@ def get_transformation(transform_dict: Box = None) -> Compose:
         "int64": torch.int64
     }
 
-    if transform_dict is not None:
-        transform_lst: List[str] = transform_dict.NAME_LIST
-        args: Box = transform_dict.ARGS
+    if transforms is not None:
         # Verify transformation
-        for i in range(len(transform_lst)):
-            assert transform_lst[i] in available_transform.keys(), "Your selected transform is unavailable"
+        for k in transforms.keys():
+            assert k in available_transforms.keys(), "Your selected transform method is unavailable"
 
             # Verify interpolation mode & replace str name to its corresponding func
-            if transform_lst[i] in ("Resize", "RandomRotation"):
-                assert args[str(i)].interpolation in available_interpolation.keys(), "Your selected interpolation mode in unavailable"
-                args[str(i)].interpolation = available_interpolation[args[str(i)].interpolation]
+            if k in ("Resize", "RandomRotation"):
+                assert transforms[k]["interpolation"] in available_interpolation.keys(), "Your selected interpolation mode in unavailable"
+                transforms[k]["interpolation"] = available_interpolation[transforms[k]["interpolation"]]
 
             # Verify dtype & replace str name to its corresponding func
-            if transform_lst[i] == "ToDtype":
-                assert args[str(i)].dtype in available_dtype.keys(), "Your selected dtype in unavailable"
-                args[str(i)].dtype = available_dtype[args[str(i)].dtype]
-        compose: Compose = Compose([available_transform[transform_lst[i]](**args[str(i)]) for i in range(len(transform_lst))])
+            if k in ("ToDtype"):
+                assert transforms[k]["dtype"] in available_dtype.keys(), "Your selected dtype in unavailable"
+                transforms[k]["dtype"] = available_dtype[transforms[k]["dtype"]]
+
+        compose: Compose = Compose([available_transforms[k](**v) for k, v in transforms.items()])
     else:
         compose: Compose = Compose([])
     return compose
 
 
 def get_dataset(root: str,
-                transform: Box = None,
-                target_transform: Box = None
+                transform: Dict[str, Dict] = None,
+                target_transform: Dict[str, Dict] = None
                 ) -> Dataset:
     """
-    root: dataset dir
-    input_shape: CHW
-    transform: Dict of transformation name and its corresponding args
-    target_transform:                     //                          but for labels/ target
+    Args:
+        root: dataset dir
+        transform: Dict of transformation name and its corresponding kwargs
+        target_transform:                     //                            but for labels
     """
     return ImageFolder(root=root,
-                       transform=get_transformation(transform_dict=transform),
-                       target_transform=get_transformation(transform_dict=target_transform)
+                       transform=get_transformation(transforms=transform),
+                       target_transform=get_transformation(transforms=target_transform)
                        )
 
 
 def get_train_val_loader(dataset: Dataset,
-                         train_size: float, batch_size: int,
-                         seed: int, cuda: bool, num_workers=1
+                         train_size: float,
+                         batch_size: int,
+                         seed: int,
+                         cuda: bool,
+                         num_workers=1,
+                         customDataloader=None
                          ) -> Tuple[DataLoader, DataLoader]:
     train_size = round(len(dataset) * train_size)
     pin_memory = True if cuda is True else False  # Use page-locked or not
@@ -280,20 +283,34 @@ def get_train_val_loader(dataset: Dataset,
     train_set, validation_set = random_split(dataset=dataset,
                                              generator=torch.Generator().manual_seed(seed),
                                              lengths=[train_size, len(dataset) - train_size])
+    if customDataloader is None:
+        train_set = DataLoader(dataset=train_set,
+                               batch_size=batch_size,
+                               shuffle=True,
+                               num_workers=num_workers,
+                               pin_memory=pin_memory
+                               )
 
-    train_set = DataLoader(dataset=train_set,
-                           batch_size=batch_size,
-                           shuffle=True,
-                           num_workers=num_workers,
-                           pin_memory=pin_memory
-                           )
+        validation_set = DataLoader(dataset=validation_set,
+                                    batch_size=batch_size,
+                                    shuffle=True,
+                                    num_workers=num_workers,
+                                    pin_memory=pin_memory
+                                    )
+    else:
+        train_set = customDataloader(dataset=train_set,
+                                     batch_size=batch_size,
+                                     shuffle=True,
+                                     num_workers=num_workers,
+                                     pin_memory=pin_memory
+                                     )
 
-    validation_set = DataLoader(dataset=validation_set,
-                                batch_size=batch_size,
-                                shuffle=True,
-                                num_workers=num_workers,
-                                pin_memory=pin_memory
-                                )
+        validation_set = customDataloader(dataset=validation_set,
+                                          batch_size=batch_size,
+                                          shuffle=True,
+                                          num_workers=num_workers,
+                                          pin_memory=pin_memory
+                                          )
     return train_set, validation_set
 
 

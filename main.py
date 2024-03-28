@@ -12,30 +12,31 @@ from torch.utils.data import DataLoader
 
 
 def train(configManager: ConfigManager) -> None:
-    train_log_path = os.path.join(log_path, f"training_log.json")
-    eval_log_path = os.path.join(log_path, f"eval_log.json")
+    # train_log_path = os.path.join(log_path, f"training_log.json")
+    # eval_log_path = os.path.join(log_path, f"eval_log.json")
 
-    train_set = get_dataset(root=os.path.join(os.getcwd(), options.DATA.DATASET_NAME, "train"),
-                            transform=options.DATA.TRANSFORM,
+    train_set = get_dataset(root=os.path.join(configManager.DATA_PATH, "train"),
+                            transform=configManager.DATA_TRANSFORM,
+                            target_transform=configManager.DATA_TARGET_TRANSFORM
                             )
 
     train_loader, val_loader = get_train_val_loader(dataset=train_set,
-                                                    train_size=options.DATA.TRAIN_SIZE,
-                                                    batch_size=options.DATA.BATCH_SIZE, seed=options.MISC.SEED,
-                                                    cuda=options.MISC.CUDA, num_workers=options.DATA.NUM_WORKERS
+                                                    train_size=configManager.DATA_TRAIN_SIZE,
+                                                    batch_size=configManager.DATA_BATCH_SIZE,
+                                                    seed=configManager.SEED,
+                                                    cuda=configManager.CUDA,
+                                                    num_workers=configManager.DATA_NUM_WORKERS
                                                     )
-    print(f"""Train batch: {len(train_loader)}, Validation batch: {len(val_loader)}
-Training model {options.SOLVER.MODEL.NAME}
-""")
+    print(f"""Train batch: {len(train_loader)}, Validation batch: {len(val_loader)}""")
 
-    trainer = Trainer(options=options,
-                      train_log_path=train_log_path,
-                      eval_log_path=eval_log_path,
-                      checkpoint_path=checkpoint_path,
-                      train_loader=train_loader,
-                      val_loader=val_loader
-                      )
-    trainer.train(metric_in_train=True)
+    # trainer = Trainer(options=options,
+    #                   train_log_path=train_log_path,
+    #                   eval_log_path=eval_log_path,
+    #                   checkpoint_path=checkpoint_path,
+    #                   train_loader=train_loader,
+    #                   val_loader=val_loader
+    #                   )
+    #     trainer.train(metric_in_train=True)
     return None
 
 

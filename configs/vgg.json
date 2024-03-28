@@ -24,7 +24,7 @@
 
             "ToDtype":
             {
-                "dtype": "float32",
+                "dtype": "int32",
                 "scale": true
             },
 
@@ -33,7 +33,8 @@
                 "degrees": [-10, 10],
                 "interpolation": "NEAREST"
             }
-        }
+        },
+        "TARGET_TRANSFORM": {}
     },
 
     "CHECKPOINT":
