@@ -2,8 +2,10 @@ import os
 import commentjson
 
 from box import Box
+from pprint import pprint as pp
 from src.tools.train import Trainer
 from src.tools.evaluate import evaluate
+from src.utils.ConfigManager import ConfigManager
 from src.utils.utils import get_train_val_loader, get_test_loader, get_dataset
 
 from torch.utils.data import DataLoader
@@ -75,9 +77,15 @@ def test(option_path: str) -> None:
 
 def main() -> None:
     # generate_celeb_A_dataset()
-    train(option_path=os.path.join(os.getcwd(), "configs", "resnet_train_config.json"))
+    config_path = os.path.join(os.getcwd(), "configs", "config_template.json")
+    configManager = ConfigManager(config_path)
+
+    train(configManager)
+
     # train(option_path=os.path.join(os.getcwd(), "configs", "age_config.json"))
     # test(option_path=os.path  .join(os.getcwd(), "configs", "test_config.json"))
+
+
     return None
 
 

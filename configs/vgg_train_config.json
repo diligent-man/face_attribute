@@ -1,53 +1,49 @@
 {
-    "EXPERIMENTS":
-    {
-        "PROJECT_NAME": "face_attribute"
-    },
+    "PROJECT_NAME": "face_attribute"
 
     "DATA":
     {
-        "DATASET_NAME": "celeb_A",
-        "INPUT_SHAPE": [3, 224, 224],
+        "PATH": "celeb_A",
+        "INPUT_SHAPE": [224, 224, 3],
         "TRAIN_SIZE": 0.9,
-        "BATCH_SIZE": 176,
+        "BATCH_SIZE": 132,
         "NUM_WORKERS": 4,
-        // Transform for X/ Variables
         "TRANSFORM":
         {
-            "NAME_LIST": ["PILToTensor", "ToDtype", "RandomRotation"],
-            "ARGS":
+            "Resize":
             {
-                // Not need paras
-                "0": {},
-
-                "1":
-                {
-                    "dtype": "float32",
-                    // normalize image from range [0, 255] into range [0, 1]
-                    "scale": true
+                    "size": [
+                        224,
+                        224
+                    ],
+                    "interpolation": "BICUBIC",
+                    "antialias": true
                 },
 
-                "2":
-                {
-                    "degrees": [-10, 10],
-                    "interpolation": "NEAREST"
-                }
+            "PILToTensor": {},
+
+            "ToDtype":
+            {
+                "dtype": "float32",
+                "scale": true
+            },
+
+            "RandomRotation":
+            {
+                "degrees": [-10, 10],
+                "interpolation": "NEAREST"
             }
         }
     },
 
     "CHECKPOINT":
     {
-        "SAVE": true,
+        "PATH": "checkpoints/restnet18",
+        "SAVE_STRATEGY": "no",
+        "SAVE_STEPS": 500,
+        "SAVE_TOTAL_LIMIT": 5,
         "LOAD": false,
-        "SAVE_ALL": false,
-        "RESUME_NAME": "epoch_39.pt"
-    },
-
-    "EPOCH":
-    {
-        "START": 1,
-        "EPOCHS": 50
+        "RESUME_NAME": "epoch_1.pt",
     },
 
     "METRICS":
@@ -67,60 +63,55 @@
         }
     },
 
-    "SOLVER":
+    "MODEL":
     {
-        "MODEL":
+        "BASE": "resnet",
+        "NAME": "resnet18",
+        "PRETRAINED": false,
+        "ARGS":
         {
-            "BASE": "vgg",
-            "NAME": "vgg13",
-            "PRETRAINED": false,
-            "ARGS":
-            {
-                "dropout": 0.5,
-                "num_classes": 1
-            }
-        },
-
-        "OPTIMIZER":
-        {
-            "NAME": "Adam",
-            "ARGS":
-            {
-                "lr": 1e-7,
-                "amsgrad": true
-            }
-        },
-
-        "LR_SCHEDULER":
-        {
-            "NAME": "CosineAnnealingWarmRestarts",
-            "ARGS":
-            {
-                "T_0": 100,
-                "T_mult": 3
-            }
-        },
-
-        "LOSS":
-        {
-            "NAME": "BCELoss",
-            "ARGS":
-            {
-                "reduction": "mean"
-            }
-        },
-
-        "EARLY_STOPPING":
-        {
-            "patience": 5,
-            "min_delta": 0
+            "dropout": 0.5,
+            "num_classes": 1
         }
     },
 
-    "MISC":
+    "OPTIMIZER":
     {
-        "SEED": 12345,
-        "APPLY_EARLY_STOPPING": true,
-        "CUDA": true
-    }
+        "NAME": "Adam",
+        "ARGS":
+        {
+            "lr": 1e-7,
+            "amsgrad": true
+        }
+    },
+
+    "LR_SCHEDULER":
+    {
+        "NAME": "CosineAnnealingWarmRestarts",
+        "ARGS":
+        {
+            "T_0": 100,
+            "T_mult": 3
+        }
+    },
+
+    "LOSS":
+    {
+        "NAME": "BCELoss",
+        "ARGS":
+        {
+            "reduction": "mean"
+        }
+    },
+
+    "EARLY_STOPPING":
+    {
+        "APPLY": false,
+        "PATIENCE": 5,
+        "MIN_DELTA": 0
+    },
+
+    "SEED": 12345,
+    "CUDA": true,
+    "TRAINING_EPOCHS": 1
 }

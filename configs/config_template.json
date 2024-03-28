@@ -1,13 +1,10 @@
 {
-    "EXPERIMENTS":
-    {
-        "PROJECT_NAME": "face_attribute"
-    },
+    "PROJECT_NAME": "face_attribute",
 
     "DATA":
     {
-        // Absolute path to the dataset
-        "DATASET_NAME": "",
+        // Path to the dataset
+        "PATH": "",
 
         // List of H, W, C of an image
         "INPUT_SHAPE": [],
@@ -23,30 +20,29 @@
         // Work better with Linux if NUM_WORKERS is large
         "NUM_WORKERS": 4,
 
-        // Transformations for input
-        //NAME_LIST: Transformation name
-        //ARGS: Corresponding args of each transformation
+
+        // A mapping transformations for input
+        //    Key: Transformation name
+        //    Value: corresponding kwargs of that transformation
         // Ref: https://pytorch.org/vision/stable/transforms.html
         // Note: Support only v2 transformation APIs
-        "TRANSFORM": {
-            "NAME_LIST": [
-                //Transformation_name_must_be_similar_with_name_from_pytorch_doc
-                // Example
-                "Resize",
-                "PILToTensor",
-                "ToDtype"
-            ],
-            "ARGS": {
-                "0": {
-                    "size": [224, 224],
+        "TRANSFORM":
+        {
+            "Resize": {
+                    "size": [
+                        224,
+                        224
+                    ],
                     "interpolation": "BICUBIC",
                     "antialias": true
                 },
-                "1": {},
-                "2": {
-                    "dtype": "float32",
-                    "scale": true
-                }
+
+            "PILToTensor": {},
+
+            "ToDtype":
+            {
+                "dtype": "float32",
+                "scale": true
             }
         },
 
@@ -57,8 +53,8 @@
 
     "CHECKPOINT":
     {
-        // Absolute path to the directory for saving and loading checkpoint
-        "PATH": "Absolute_path",
+        // Path to the directory for saving and loading checkpoint
+        "PATH": "",
 
         // "no" | "epoch" | "steps"
         "SAVE_STRATEGY": "no",
@@ -73,13 +69,9 @@
         // Load old checkpoint or not
         "LOAD": false,
 
-        // Resume name when loading old checkpoint
         // Only work with .pt checkpoint
         "RESUME_NAME": "checkpoint_name.pt"
     },
-
-    // Num of training epochs
-    "NUM_EPOCH": 1,
 
     // Metrics when trainning/ testing
     // Ref: https://pytorch.org/torcheval/stable/torcheval.metrics.html
@@ -142,6 +134,9 @@
         // How much the METRICS_FOR_BEST_MODEL must improve to satisfy early stopping conditions.
         "MIN_DELTA": 0
     },
+
+    // Num of training epochs
+    "TRAINING_EPOCHS": 1,
 
     // Misc configs
     "SEED": 12345,
