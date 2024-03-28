@@ -1,6 +1,0 @@
-Available configurations for training classification model:
-    + DATASET
-    + EPOCH
-    + CHECKPOINT
-    + CRITERION
-    + CHECKPOINT

@@ -1,3 +1,4 @@
+import os
 import types
 import commentjson
 
@@ -16,6 +17,12 @@ class ConfigManager:
         config = commentjson.loads(open(file=path, mode="r", encoding="UTF-8").read())
         self.__set_dynamic_field(config)
 
+        # check paths existence
+        self.__check_output_path()
+
+        #
+
+
     def __set_dynamic_field(self, config: Dict[str, Any], max_recursive_level: int = 0) -> None:
         """
         Create class dynamic fields of configs with one recursive level
@@ -32,5 +39,19 @@ class ConfigManager:
                 setattr(self, k, v)
         return None
 
+    def __check_output_path(self) -> None:
+        """
+        Check existence of checkpoint and log path
+        If not exists, create dir as the following pattern:
+            checkpoint/<MODEL_BASE>/<MODEL_NAME>
+        """
+        for path in ("checkpoint", "log"):
+            # Add path to class attr
+            k = f"{path.upper()}_PATH"
+            v = os.path.join(os.getcwd(), "output", path, self.MODEL_BASE, self.MODEL_NAME)
+            self.__dict__[k] = v
 
-
+            # Create dir if not exists
+            if not os.path.isdir(v):
+                os.makedirs(v, 0o777, True)
+                print(f"Dir for {k.lower()} {self.MODEL_NAME} is created.")

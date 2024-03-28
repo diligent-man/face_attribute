@@ -1,0 +1,144 @@
+{
+    "PROJECT_NAME": "face_attribute",
+
+    "DATA":
+    {
+        // Path to training dataset
+        "PATH": "",
+
+        // List of H, W, C of an image
+        "INPUT_SHAPE": [],
+
+        // Ratio for train/ val splitting
+        "TRAIN_SIZE": 0.9,
+
+        // Num of images each batch
+        "BATCH_SIZE": 360,
+
+        // Num of processes used for image transformation when loading by dataloader
+        // Should not be over 2 * cpu_count() + 1
+        // Work better with Linux if NUM_WORKERS is large
+        "NUM_WORKERS": 4,
+
+
+        // A mapping transformations for input
+        //    Key: Transformation name
+        //    Value: corresponding kwargs of that transformation
+        // Ref: https://pytorch.org/vision/stable/transforms.html
+        // Note: Support only v2 transformation APIs
+        "TRANSFORM":
+        {
+            "Resize": {
+                    "size": [
+                        224,
+                        224
+                    ],
+                    "interpolation": "BICUBIC",
+                    "antialias": true
+                },
+
+            "PILToTensor": {},
+
+            "ToDtype":
+            {
+                "dtype": "float32",
+                "scale": true
+            }
+        },
+
+        // Transformations for labels
+        // Structure is the same as input transformation
+        "TARGET_TRANSFORM": {}
+    },
+
+    "CHECKPOINT":
+    {
+        // Path to the directory for saving and loading checkpoint
+        "PATH": "",
+
+        // "no" | "epoch" | "steps"
+        "SAVE_STRATEGY": "no",
+
+        // Number of updates steps before two checkpoint saves if `save_strategy="steps"
+        "SAVE_STEPS": 500,
+
+        // Limit the total amount of checkpoints. Based on metric_for_best_model
+        // -1 for saving all
+        "SAVE_TOTAL_LIMIT": 5,
+
+        // Load old checkpoint or not
+        "LOAD": false,
+
+        // Only work with .pt checkpoint
+        "RESUME_NAME": "checkpoint_name.pt"
+    },
+
+    // Metrics when trainning/ testing
+    // Ref: https://pytorch.org/torcheval/stable/torcheval.metrics.html
+    "METRICS":
+    {
+        // Used with EARLY_STOPPING
+        "METRICS_FOR_BEST_MODEL": "",
+        // Structure is the same as transformation for input and label
+        "NAME_LIST": [],
+        "ARGS":{}
+
+    },
+
+    "MODEL":
+    {
+        // Base backbone
+        // E.g. resnet
+        "BASE": "",
+
+        // Backbone's variant
+        // E.g. Resnet18
+        "NAME": "",
+
+        // Use pretrained weight or not
+        // TODO: Handle pretrained weight when init model
+        "PRETRAINED": false,
+
+        // ARGS to model
+        "ARGS": {}
+    },
+
+    // Ref: https://pytorch.org/docs/stable/optim.html
+    "OPTIMIZER":
+        {
+            "NAME": "Adam",
+            "ARGS": {}
+        },
+
+    // Ref: https://pytorch.org/docs/stable/optim.html#module-torch.optim.lr_scheduler
+    "LR_SCHEDULER":
+        {
+            "NAME": "",
+            "ARGS": {}
+        },
+
+    // Ref: https://pytorch.org/docs/stable/nn.html
+    "LOSS":
+    {
+        "NAME": "",
+        "ARGS": {}
+    },
+
+    "EARLY_STOPPING":
+    {
+        // Apply early stopping when training or not
+        "APPLY": false,
+        // Use with 'metric_for_best_model'
+        // Num of epoch to cease training when the specified METRICS_FOR_BEST_MODEL worsens in evaluation phase
+        "PATIENCE": 5,
+        // How much the METRICS_FOR_BEST_MODEL must improve to satisfy early stopping conditions.
+        "MIN_DELTA": 0
+    },
+
+    // Num of training epochs
+    "TRAINING_EPOCHS": 1,
+
+    // Misc configs
+    "SEED": 12345,
+    "CUDA": true
+}

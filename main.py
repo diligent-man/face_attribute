@@ -11,20 +11,7 @@ from src.utils.utils import get_train_val_loader, get_test_loader, get_dataset
 from torch.utils.data import DataLoader
 
 
-def train(option_path: str) -> None:
-    options = Box(commentjson.loads(open(file=option_path, mode="r").read()))
-
-    checkpoint_path = os.path.join(os.getcwd(), "checkpoints", options.SOLVER.MODEL.NAME)
-    log_path = os.path.join(os.getcwd(), "logs", options.SOLVER.MODEL.NAME)
-
-    if not os.path.isdir(checkpoint_path):
-        os.makedirs(checkpoint_path, 0o777, True)
-        print(f"Checkpoint dir for {options.SOLVER.MODEL.NAME} was created.")
-
-    if not os.path.isdir(log_path):
-        os.makedirs(log_path, 0o777, True)
-        print(f"Log dir checkpoint for {options.SOLVER.MODEL.NAME} was created.")
-
+def train(configManager: ConfigManager) -> None:
     train_log_path = os.path.join(log_path, f"training_log.json")
     eval_log_path = os.path.join(log_path, f"eval_log.json")
 
@@ -77,11 +64,9 @@ def test(option_path: str) -> None:
 
 def main() -> None:
     # generate_celeb_A_dataset()
-    config_path = os.path.join(os.getcwd(), "configs", "config_template.json")
+    config_path = os.path.join(os.getcwd(), "configs", "vgg.json")
     configManager = ConfigManager(config_path)
-
     train(configManager)
-
     # train(option_path=os.path.join(os.getcwd(), "configs", "age_config.json"))
     # test(option_path=os.path  .join(os.getcwd(), "configs", "test_config.json"))
 
