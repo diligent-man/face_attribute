@@ -6,19 +6,15 @@
         "PATH": "/home/trong/Downloads/Local/Source/python/semester_6/face_attribute/small_celeb_A",
         "INPUT_SHAPE": [224, 224, 3],
         "TRAIN_SIZE": 0.9,
-        "BATCH_SIZE": 132,
         "NUM_WORKERS": 4,
         "TRANSFORM":
         {
             "Resize":
             {
-                    "size": [
-                        224,
-                        224
-                    ],
-                    "interpolation": "BICUBIC",
-                    "antialias": true
-                },
+                "size": [224, 224],
+                "interpolation": "BICUBIC",
+                "antialias": true
+            },
 
             "PILToTensor": {},
 
@@ -40,27 +36,11 @@
     "CHECKPOINT":
     {
         "SAVE_STRATEGY": "no",
-        "SAVE_STEPS": 500,
         "SAVE_TOTAL_LIMIT": 5,
         "LOAD": false,
         "RESUME_NAME": "epoch_1.pt",
-    },
-
-    "METRICS":
-    {
-        "NAME_LIST": ["BinaryAccuracy", "BinaryF1Score"],
-        "ARGS":
-        {
-            "0":
-            {
-               "threshold": 0.5
-            },
-
-            "1":
-            {
-               "threshold": 0.5
-            }
-        }
+        "SAVE_ONLY_WEIGHT": true,
+        "INCLUDE_CONFIG": false
     },
 
     "MODEL":
@@ -75,43 +55,47 @@
         }
     },
 
-    "OPTIMIZER":
+    "SOLVER":
     {
-        "NAME": "Adam",
-        "ARGS":
+        "OPTIMIZER":
         {
-            "lr": 1e-7,
-            "amsgrad": true
+            "Adam": {"lr": 1e-7, "amsgrad": true}
+        },
+
+        "LR_SCHEDULER":
+        {
+            "CosineAnnealingWarmRestarts": {"T_0": 100, "T_mult": 3}
+        },
+
+        "LOSS":
+        {
+            "BCELoss": {"reduction": "mean"}
+        },
+
+        "METRICS":
+        {
+            "BinaryAccuracy": {"threshold": 0.5},
+            "BinaryF1Score": {"threshold": 0.5}
         }
     },
 
-    "LR_SCHEDULER":
-    {
-        "NAME": "CosineAnnealingWarmRestarts",
-        "ARGS":
-        {
-            "T_0": 100,
-            "T_mult": 3
-        }
-    },
 
-    "LOSS":
-    {
-        "NAME": "BCELoss",
-        "ARGS":
-        {
-            "reduction": "mean"
-        }
-    },
-
-    "EARLY_STOPPING":
-    {
+    "EARLY_STOPPING": {
         "APPLY": false,
-        "PATIENCE": 5,
-        "MIN_DELTA": 0
+        "ARGS": {
+            "PATIENCE": 5,
+            "MIN_DELTA": 0
+        }
+    },
+
+    "LOGGING":
+    {
+        "STRATEGY": "epoch"
     },
 
     "SEED": 12345,
     "CUDA": true,
-    "TRAINING_EPOCHS": 1
+    "BATCH_SIZE": 132,
+    "TRAINING_EPOCHS": 1,
+    "EVALUATION_STRATEGY": "no",
 }

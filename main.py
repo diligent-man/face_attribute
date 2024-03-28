@@ -29,6 +29,7 @@ def train(configManager: ConfigManager) -> None:
                                                     )
     print(f"""Train batch: {len(train_loader)}, Validation batch: {len(val_loader)}""")
 
+
     # trainer = Trainer(options=options,
     #                   train_log_path=train_log_path,
     #                   eval_log_path=eval_log_path,
@@ -67,7 +68,8 @@ def main() -> None:
     # generate_celeb_A_dataset()
     config_path = os.path.join(os.getcwd(), "configs", "vgg.json")
     configManager = ConfigManager(config_path)
-    train(configManager)
+    pp(configManager.get_training_configs())
+    # train(configManager)
     # train(option_path=os.path.join(os.getcwd(), "configs", "age_config.json"))
     # test(option_path=os.path  .join(os.getcwd(), "configs", "test_config.json"))
 

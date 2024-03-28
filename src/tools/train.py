@@ -5,8 +5,10 @@ from tqdm import tqdm
 from time import sleep
 from typing import List, Dict
 from src.utils.logger import Logger
+from src.utils.ConfigManager import ConfigManager
 from src.utils.early_stopping import EarlyStopper
 from src.utils.utils import init_loss, init_metrics, init_lr_scheduler, init_model_optimizer_start_epoch
+
 
 import torch
 import torcheval
@@ -38,21 +40,20 @@ class Trainer:
     __model: torch.nn.Module
 
 
-    def __init__(self, options: Box,
-                 train_log_path: str, eval_log_path: str, checkpoint_path: str,
-                 train_loader: DataLoader, val_loader: DataLoader
+    def __init__(self,
+                 configManager: ConfigManager,
+                 train_loader: DataLoader,
+                 val_loader: DataLoader
                  ):
-        self.__options: Box = options
-        self.__train_log_path: str = train_log_path
-        self.__eval_log_path: str = eval_log_path
-        self.__checkpoint_path: str = checkpoint_path
-        self.__device: str = "cuda" if self.__options.MISC.CUDA else "cpu"
-        self.__best_val_loss: float = self.__get_best_val_loss()
-
+        self.__config_manager: ConfigManager = configManager
+        self.__device: str = "cuda" if self.__config_manager.CUDA else "cpu"
         self.__train_loader: DataLoader = train_loader
         self.__validation_loader: DataLoader = val_loader
 
+
         self.__early_stopper: EarlyStopper = EarlyStopper(self.__best_val_loss, **self.__options.SOLVER.EARLY_STOPPING)
+        self.__best_val_loss: float = self.__get_best_val_loss()
+
         self.__logger: Logger = Logger()
 
         self.__loss = init_loss(name=self.__options.SOLVER.LOSS.NAME, args=self.__options.SOLVER.LOSS.ARGS)
